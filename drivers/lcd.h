@@ -14,4 +14,5 @@ extern void lcd_init();
 extern void updatarunbutton(rt_uint8_t button_state,rt_uint16_t buttonID,rt_uint8_t page);//更新照射界面按钮
 extern void UpdataLcdDataU8(rt_uint16_t page,rt_uint8_t channel,rt_uint16_t num);//
 extern rt_mq_t lcd_command_mq;//创建lcd命令消息队列
+extern rt_uint8_t current_show;
 #endif /* DRIVERS_LCD_H_ */

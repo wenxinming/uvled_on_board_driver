@@ -18,7 +18,7 @@ struct channel channel3;
 struct channel channel4;
 struct channel_control control_mode;
 rt_uint8_t k;
-
+rt_uint8_t channel_sync_mode;//同步模式 = 0异步模式 = 1同步模式
 void channel_init()
 {
     rt_uint8_t i;
@@ -34,6 +34,7 @@ void channel_init()
     channel1.cycle = (*(unsigned int*)(channel1_cycle_addr));
     channel1.Enable = (*(unsigned int*)(channel1_enable_addr));
     channel1.set_current = (*(unsigned int*)(channel1_current_addr));
+    channel1.set_temperature = (*(unsigned int*)(channel1_temperature_addr));
     for(i=0;i<20;i++)
     {
         channel1.multistage_time[i] = (*(unsigned int*)(channel1_multistage_time_addr+i*2));
@@ -56,6 +57,7 @@ void channel_init()
     channel2.cycle = (*(unsigned int*)(channel2_cycle_addr));
     channel2.Enable = (*(unsigned int*)(channel2_enable_addr));
     channel2.set_current = (*(unsigned int*)(channel2_current_addr));
+    channel2.set_temperature = (*(unsigned int*)(channel2_temperature_addr));
     for(i=0;i<20;i++)
     {
         channel2.multistage_time[i] = (*(unsigned int*)(channel2_multistage_time_addr+i*2));
@@ -78,6 +80,7 @@ void channel_init()
     channel3.cycle = (*(unsigned int*)(channel3_cycle_addr));
     channel3.Enable = (*(unsigned int*)(channel3_enable_addr));
     channel3.set_current = (*(unsigned int*)(channel3_current_addr));
+    channel3.set_temperature = (*(unsigned int*)(channel3_temperature_addr));
     for(i=0;i<20;i++)
     {
         channel3.multistage_time[i] = (*(unsigned int*)(channel3_multistage_time_addr+i*2));
@@ -100,6 +103,7 @@ void channel_init()
     channel4.cycle = (*(unsigned int*)(channel4_cycle_addr));
     channel4.Enable = (*(unsigned int*)(channel4_enable_addr));
     channel4.set_current = (*(unsigned int*)(channel4_current_addr));
+    channel4.set_temperature = (*(unsigned int*)(channel4_temperature_addr));
     for(i=0;i<20;i++)
     {
         channel4.multistage_time[i] = (*(unsigned int*)(channel4_multistage_time_addr+i*2));
@@ -110,6 +114,7 @@ void channel_init()
     }
     channel4.status = 0;
     channel4.now_time_s = 0;
+    channel_sync_mode = (*(unsigned int*)(sync_mode_addr));
 }
 void restore_default()//恢复出厂
 {
@@ -125,7 +130,8 @@ void restore_default()//恢复出厂
     channel1.cycle = 3;
     channel1.Enable = 1;
 
-    channel1.set_current = 1500;
+    channel1.set_current = 1400;
+    channel1.set_temperature = 60;
     for(i=0;i<20;i++)
     {
         channel1.multistage_time[i] = 10;
@@ -147,7 +153,8 @@ void restore_default()//恢复出厂
     channel2.control_mode = 0;
     channel2.cycle = 3;
     channel2.Enable = 1;
-    channel2.set_current = 1500;
+    channel2.set_current = 1400;
+    channel2.set_temperature = 60;
     for(i=0;i<20;i++)
     {
         channel2.multistage_time[i] = 10;
@@ -169,7 +176,8 @@ void restore_default()//恢复出厂
     channel3.control_mode = 0;
     channel3.cycle = 3;
     channel3.Enable = 1;
-    channel3.set_current = 1500;
+    channel3.set_current = 1400;
+    channel3.set_temperature = 60;
     for(i=0;i<20;i++)
     {
         channel3.multistage_time[i] = 10;
@@ -191,7 +199,8 @@ void restore_default()//恢复出厂
     channel4.control_mode = 0;
     channel4.cycle = 3;
     channel4.Enable = 1;
-    channel4.set_current = 1500;
+    channel4.set_current = 1400;
+    channel4.set_temperature = 60;
     for(i=0;i<20;i++)
     {
         channel4.multistage_time[i] = 10;
@@ -202,5 +211,6 @@ void restore_default()//恢复出厂
     }
     channel4.status = 0;
     channel4.now_time_s = 0;
+    channel_sync_mode = 0;
     save();
 }

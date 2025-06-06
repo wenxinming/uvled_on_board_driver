@@ -32,6 +32,7 @@ void save()
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, channel1_cycle_addr, channel1.cycle);
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, channel1_enable_addr, channel1.Enable);
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, channel1_current_addr, channel1.set_current);
+    HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, channel1_temperature_addr, channel1.set_temperature);
     for(i=0;i<20;i++)
     {
         HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD,channel1_multistage_time_addr+i*2,channel1.multistage_time[i]);
@@ -52,6 +53,7 @@ void save()
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, channel2_cycle_addr, channel2.cycle);
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, channel2_enable_addr, channel2.Enable);
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, channel2_current_addr, channel2.set_current);
+    HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, channel2_temperature_addr, channel2.set_temperature);
     for(i=0;i<20;i++)
     {
         HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD,channel2_multistage_time_addr+i*2,channel2.multistage_time[i]);
@@ -72,6 +74,7 @@ void save()
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, channel3_cycle_addr, channel3.cycle);
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, channel3_enable_addr, channel3.Enable);
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, channel3_current_addr, channel3.set_current);
+    HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, channel3_temperature_addr, channel3.set_temperature);
     for(i=0;i<20;i++)
     {
         HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD,channel3_multistage_time_addr+i*2,channel3.multistage_time[i]);
@@ -93,6 +96,7 @@ void save()
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, channel4_cycle_addr, channel4.cycle);
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, channel4_enable_addr, channel4.Enable);
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, channel4_current_addr, channel4.set_current);
+    HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, channel4_temperature_addr, channel4.set_temperature);
     for(i=0;i<20;i++)
     {
         HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD,channel4_multistage_time_addr+i*2,channel4.multistage_time[i]);
@@ -101,6 +105,6 @@ void save()
     {
         HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD,channel4_multistage_power_addr+i*2,channel4.multistage_power[i]);
     }
-
+    HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, sync_mode_addr, channel_sync_mode);
     HAL_FLASH_Lock();
 }

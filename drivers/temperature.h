@@ -12,6 +12,6 @@
 
 extern rt_uint8_t read_temp_running;
 extern rt_uint8_t read_temp_watch;
-extern float Temp1,Temp2;
+extern float Temp1,Temp2,Temp3,Temp4;//通道1温度 通道2温度;
 extern rt_uint16_t voltage;
 #endif /* DRIVERS_TEMPERATURE_H_ */

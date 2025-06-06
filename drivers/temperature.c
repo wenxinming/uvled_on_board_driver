@@ -11,6 +11,7 @@
 #include <board.h>
 #include <channel.h>
 #include <lcd.h>
+#include <lcd_string.h>
 rt_uint16_t voltage;
 //#define SDO_PIN GET_PIN(B, 13) //定义输出开关
 #define SDO1 HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_14)
@@ -316,24 +317,15 @@ void read_temp_entry(void *parameter)//温度刷新
         Temp2 = read_temperature(1,0);
         Temp3 = read_temperature(0,1);
         Temp4 = read_temperature(1,1);
-        /*
-        if(read_temp_watch)
-        {
-            ftoa(Temp1,turn);
-            UpdataLcdString(3,2,turn);
-            ftoa(Temp2,turn);
-            UpdataLcdString(3,4,turn);
-        }
-        if(read_temp_running)
-        {
-            //UpdataLcdDataFloat(7,3,Temp1);
-            //UpdataLcdDataFloat(7,14,Temp2);
-            ftoa(Temp1,turn);
-            UpdataLcdString(7,3,turn);
-            ftoa(Temp2,turn);
-            UpdataLcdString(7,14,turn);
-        }*/
-        rt_thread_mdelay(1000);
+          //ftoa(Temp1,turn);
+        UpdataLcdDataU8(show_parameter_c1_temperature,2,Temp1);
+         // ftoa(Temp2,turn);
+        UpdataLcdDataU8(show_parameter_c2_temperature,4,Temp2);
+         // ftoa(Temp2,turn);
+        UpdataLcdDataU8(show_parameter_c3_temperature,4,Temp3);
+         // ftoa(Temp2,turn);
+        UpdataLcdDataU8(show_parameter_c4_temperature,4,Temp4);
+        rt_thread_mdelay(2000);
     }
 }
 void temperature_init()

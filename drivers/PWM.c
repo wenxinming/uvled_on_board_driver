@@ -74,7 +74,7 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim)
 void pwm_init()
 {
     //gtim_timx_pwm_chy_init(500 - 1, 64 - 1);//2KHZ
-    gtim_timx_pwm_chy_init(1000 - 1, 64 - 1);//2KHZ
+    gtim_timx_pwm_chy_init(1000 - 1, 73 - 1);//2KHZ
     /* 修改比较值控制占空比 */
     //__HAL_TIM_SET_COMPARE(&g_timx_pwm_chy_handle, GTIM_TIMX_PWM_CHY, 100);
     //__HAL_TIM_SET_COMPARE(&g_timx_pwm_chy_handle, TIM_CHANNEL_2, 250);
@@ -82,29 +82,77 @@ void pwm_init()
 void set_ch1_output(rt_uint8_t num)
 {
     float temp;
-    temp = channel1.set_current/1500.0;
-    set_pwm1 = num*10*temp;
+    unsigned int set;
+    if(num<2)
+    num = 2;
+    set = channel1.set_current;
+    if(set>1400)
+    set = 1400;
+    temp = set/1500.0;
+    //最大值92% 0-92
+    if(set>1350)
+    {
+        set_pwm1 = num*10*temp*0.99;
+    }else {
+        set_pwm1 = num*10*temp*1.01;
+    }
     __HAL_TIM_SET_COMPARE(&g_timx_pwm_chy_handle, OutputCH1, set_pwm1);
 }
 void set_ch2_output(rt_uint8_t num)
 {
     float temp;
-    temp = channel2.set_current/1500.0;
-    set_pwm2 = num*10*temp;
+    unsigned int set;
+    if(num<2)
+        num = 2;
+    set = channel2.set_current;
+    if(set>1400)
+    set = 1400;
+    temp = set/1500.0;
+    //最大值92% 0-92
+    if(set>1350)
+    {
+        set_pwm2 = num*10*temp*0.99;
+    }else {
+        set_pwm2 = num*10*temp*1.01;
+    }
     __HAL_TIM_SET_COMPARE(&g_timx_pwm_chy_handle, OutputCH2, set_pwm2);
 }
 void set_ch3_output(rt_uint8_t num)
 {
     float temp;
-    temp = channel3.set_current/1500.0;
-    set_pwm3 = num*10*temp;
+    unsigned int set;
+    if(num<2)
+        num = 2;
+    set = channel3.set_current;
+    if(set>1400)
+    set = 1400;
+    temp = set/1500.0;
+    //最大值92% 0-92
+    if(set>1350)
+    {
+        set_pwm3 = num*10*temp*0.99;
+    }else {
+        set_pwm3 = num*10*temp*1.01;
+    }
     __HAL_TIM_SET_COMPARE(&g_timx_pwm_chy_handle, OutputCH3, set_pwm3);
 }
 void set_ch4_output(rt_uint8_t num)
 {
     float temp;
-    temp = channel4.set_current/1500.0;
-    set_pwm4 = num*10*temp;
+    unsigned int set;
+    if(num<2)
+        num = 2;
+    set = channel4.set_current;
+    if(set>1400)
+    set = 1400;
+    temp = set/1500.0;
+    //最大值92% 0-92
+    if(set>1350)
+    {
+        set_pwm4 = num*10*temp*1.08;
+    }else {
+        set_pwm4 = num*10*temp*1.06;
+    }
     __HAL_TIM_SET_COMPARE(&g_timx_pwm_chy_handle, OutputCH4, set_pwm4);
 }
 void ch1_output_off()

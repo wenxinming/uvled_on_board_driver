@@ -12,6 +12,8 @@
 #include <channel.h>
 #include <stdio.h>
 #include <math.h>
+#include <lcd_string.h>
+#include <lcd.h>
 rt_thread_t read_current;
 float adc1,adc2,adc3,adc4;
 rt_uint16_t current1,current2,current3,current4;
@@ -42,6 +44,7 @@ void read_current_entry(void *parameter)//温度刷新
     //40毫欧 50倍放大
     rt_uint8_t turn[10];
     rt_uint16_t i=0;
+    float tempadc;
     rt_memset(&turn, 0, 10);
     while(1)
     {
@@ -56,18 +59,64 @@ void read_current_entry(void *parameter)//温度刷新
         adc_get_result2(0);
         adc1 = calculate_mean(adc_temp,2000);
         current1 = adc1*3.3/4096.0/50.0/0.04*1000.0;
+        tempadc = 1.0;
+        if(current1<1000)
+        {
+            tempadc = 0.99;
+        }
+        if(current1<600)
+        {
+            tempadc = 0.98;
+        }
+        current1 *= tempadc;
 
         adc_get_result2(1);
-        adc2 = calculate_mean(adc_temp,1000);
+        adc2 = calculate_mean(adc_temp,2000);
         current2 = adc2*3.3/4096.0/50.0/0.04*1000.0;
+        tempadc = 1.0;
+        if(current2<1000)
+        {
+            tempadc = 0.99;
+        }
+        if(current2<600)
+        {
+            tempadc = 0.98;
+        }
+        current2 *= tempadc;
+
 
         adc_get_result2(4);
-        adc3 = calculate_mean(adc_temp,1000);
+        adc3 = calculate_mean(adc_temp,2000);
         current3 = adc3*3.3/4096.0/50.0/0.04*1000.0;
+        tempadc = 1.0;
+        if(current3<1000)
+        {
+            tempadc = 0.99;
+        }
+        if(current3<600)
+        {
+            tempadc = 0.98;
+        }
+        current3 *= tempadc;
 
         adc_get_result2(5);
-        adc4 = calculate_mean(adc_temp,1000);
+        adc4 = calculate_mean(adc_temp,2000);
         current4 = adc4*3.3/4096.0/50.0/0.04*1000.0;
+        tempadc = 1.0;
+        if(current4<1000)
+        {
+            tempadc = 0.99;
+        }
+        if(current4<600)
+        {
+            tempadc = 0.98;
+        }
+        current4 *= tempadc;
+
+        UpdataLcdDataU8(show_current_c1,0,current1);//更新电流
+        UpdataLcdDataU8(show_current_c2,0,current2);//更新电流
+        UpdataLcdDataU8(show_current_c3,0,current3);//更新电流
+        UpdataLcdDataU8(show_current_c4,0,current4);//更新电流
         /*
         if(read_temp_watch)
         {
@@ -85,7 +134,7 @@ void read_current_entry(void *parameter)//温度刷新
             ftoa(Temp2,turn);
             UpdataLcdString(7,14,turn);
         }*/
-       // rt_thread_mdelay(10);
+        rt_thread_mdelay(1000);
     }
 }
 

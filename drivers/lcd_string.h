@@ -39,6 +39,11 @@
 #define led3_checkled_alarm_strup UpdataLcdString(0x1030, 17, "接入异常")
 #define led4_checkled_alarm_strup UpdataLcdString(0x1040, 17, "接入异常")
 
+#define led1_temperature_alarm_strup UpdataLcdString(0x1010, 17, "温度报警")
+#define led2_temperature_alarm_strup UpdataLcdString(0x1020, 17, "温度报警")
+#define led3_temperature_alarm_strup UpdataLcdString(0x1030, 17, "温度报警")
+#define led4_temperature_alarm_strup UpdataLcdString(0x1040, 17, "温度报警")
+
 #define led1_button_off_strup updatarunbutton(0,0x1080,7)//开灯按钮off
 #define led2_button_off_strup updatarunbutton(0,0x1082,7)
 #define led3_button_off_strup updatarunbutton(0,0x1084,7)
@@ -294,6 +299,29 @@
 #define c4_multistage_cycle_set  0x34A0
 #define c4_multistage_return_key  0x20
 
+#define show_parameter_c1_temperature 0x34A4
+#define show_parameter_c2_temperature 0x34A8
+#define show_parameter_c3_temperature 0x34AC
+#define show_parameter_c4_temperature 0x34B0
+
+#define parameter_page_c1_temperature 0x34B4
+#define parameter_page_c2_temperature 0x34B8
+#define parameter_page_c3_temperature 0x34BC
+#define parameter_page_c4_temperature 0x34C0
+
+#define parameter_current_c1 0x34C4
+#define parameter_current_c2 0x34C8
+#define parameter_current_c3 0x34CC
+#define parameter_current_c4 0x34D0
+
+#define show_current_c1 0x34D4
+#define show_current_c2 0x34D8
+#define show_current_c3 0x34DC
+#define show_current_c4 0x34E0
+#define show_current_c4 0x34E0
+
+#define  ctrl_mode_page_sync_mode 0x34c4
+
 #define c1_clear_alltime_key  0x21
 #define c2_clear_alltime_key  0x22
 #define c3_clear_alltime_key  0x23
@@ -310,6 +338,9 @@
 #define reset_password_cancel_key  0x29
 #define reset_ok 0x2A
 #define reset_cancel 0x2B
+#define sync_mode_key 0x2C
+#define current_return_key 0x2D
+#define current_set_key 0x2E
 
 #define monitor_page_power_c1 0x5020
 #define monitor_page_time_c1 0x1054

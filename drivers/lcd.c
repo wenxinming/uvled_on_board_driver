@@ -24,7 +24,7 @@ extern void shine_entry(void *parameter);//lcd命令执行
 rt_uint32_t password=123456;//设置密码
 rt_uint32_t receive_password;//触摸屏接收密码
 rt_uint8_t select_channel;
-rt_uint8_t led_on_io1,led_on_io2;//外部开灯变量
+rt_uint8_t current_show;
 typedef struct
 {
     rt_uint8_t send_uart[24];
@@ -207,6 +207,13 @@ void updata_control_mode()//更新控制模式菜单
     }else {
         updatarunbutton(1,ctrl_mode_page_c4_enable,0);//更新通道1控制模式
     }
+
+    if(channel_sync_mode==0)//通道使能
+    {
+        updatarunbutton(0,ctrl_mode_page_sync_mode,0);//更新通道1控制模式
+    }else {
+        updatarunbutton(1,ctrl_mode_page_sync_mode,0);//更新通道1控制模式
+    }
 }
 void UpdataShinec1Screen()//更新监控界面
 {
@@ -307,34 +314,34 @@ void updata_parameter()//照射参数
     UpdataLcdDataU8(parameter_page_c3_delay,6,channel3.delay_time);//通道2功率
     UpdataLcdDataU8(parameter_page_c4_delay,6,channel4.delay_time);//通道2功率
 
-    UpdataLcdDataU8(parameter_page_c1_current,2,channel1.set_current);//通道1功率
-    UpdataLcdDataU8(parameter_page_c2_current,6,channel2.set_current);//通道2功率
-    UpdataLcdDataU8(parameter_page_c3_current,6,channel3.set_current);//通道2功率
-    UpdataLcdDataU8(parameter_page_c4_current,6,channel4.set_current);//通道2功率
+    UpdataLcdDataU8(parameter_page_c1_current,2,channel1.alarm_temperature);//通道1功率
+    UpdataLcdDataU8(parameter_page_c2_current,6,channel2.alarm_temperature);//通道2功率
+    UpdataLcdDataU8(parameter_page_c3_current,6,channel3.alarm_temperature);//通道2功率
+    UpdataLcdDataU8(parameter_page_c4_current,6,channel4.alarm_temperature);//通道2功率
 }
 void view_parameters()//查看参数界面
 {
     UpdataLcdDataU8(show_parameter_c1_power,2,channel1.power);//通道1功率
     UpdataLcdDataU8(show_parameter_c1_time,2,channel1.time);//通道1照射时间
-    UpdataLcdDataU8(show_parameter_c1_current,2,channel1.set_current);//通道1设置电流
+    UpdataLcdDataU8(show_parameter_c1_current,2,channel1.alarm_temperature);//通道1设置电流
     UpdataLcdDataU8(show_parameter_c1_alltime_h,2,channel1.time_hour);//通道1设置电流
     UpdataLcdDataU8(show_parameter_c1_alltime_m,2,channel1.time_minutes);//通道1设置电流
 
     UpdataLcdDataU8(show_parameter_c2_power,2,channel2.power);//通道1功率
     UpdataLcdDataU8(show_parameter_c2_time,2,channel2.time);//通道1照射时间
-    UpdataLcdDataU8(show_parameter_c2_current,2,channel2.set_current);//通道1设置电流
+    UpdataLcdDataU8(show_parameter_c2_current,2,channel2.alarm_temperature);//通道1设置电流
     UpdataLcdDataU8(show_parameter_c2_alltime_h,2,channel2.time_hour);//通道1设置电流
     UpdataLcdDataU8(show_parameter_c2_alltime_m,2,channel2.time_minutes);//通道1设置电流
 
     UpdataLcdDataU8(show_parameter_c3_power,2,channel3.power);//通道1功率
     UpdataLcdDataU8(show_parameter_c3_time,2,channel3.time);//通道1照射时间
-    UpdataLcdDataU8(show_parameter_c3_current,2,channel3.set_current);//通道1设置电流
+    UpdataLcdDataU8(show_parameter_c3_current,2,channel3.alarm_temperature);//通道1设置电流
     UpdataLcdDataU8(show_parameter_c3_alltime_h,2,channel3.time_hour);//通道1设置电流
     UpdataLcdDataU8(show_parameter_c3_alltime_m,2,channel3.time_minutes);//通道1设置电流
 
     UpdataLcdDataU8(show_parameter_c4_power,2,channel4.power);//通道1功率
     UpdataLcdDataU8(show_parameter_c4_time,2,channel4.time);//通道1照射时间
-    UpdataLcdDataU8(show_parameter_c4_current,2,channel4.set_current);//通道1设置电流
+    UpdataLcdDataU8(show_parameter_c4_current,2,channel4.alarm_temperature);//通道1设置电流
     UpdataLcdDataU8(show_parameter_c4_alltime_h,2,channel4.time_hour);//通道1设置电流
     UpdataLcdDataU8(show_parameter_c4_alltime_m,2,channel4.time_minutes);//通道1设置电流
 }
@@ -394,6 +401,13 @@ void updata_multistage_c4()//更新多段照射
     }
     UpdataLcdDataU8(c4_multistage_cycle_set,0x20,channel4.cycle);
 }
+void UpdataSetCurrent()//更新电流设置
+{
+    UpdataLcdDataU8(parameter_current_c1,0x20,channel1.set_current);
+    UpdataLcdDataU8(parameter_current_c2,0x20,channel2.set_current);
+    UpdataLcdDataU8(parameter_current_c3,0x20,channel3.set_current);
+    UpdataLcdDataU8(parameter_current_c4,0x20,channel4.set_current);
+}
 void switch_show(rt_int8_t page)//切换画面
 {
     lcd_uart_send buff;
@@ -443,49 +457,13 @@ void lcd_command_entry(void *parameter)//lcd命令执行
     rt_uint8_t buff[64];
     rt_uint8_t last_state1,last_state2;
     i=0;
-    last_state1 = Read_LedOn1;
-    last_state2 = Read_LedOn2;
-    led_on_io1 = 0;
-    led_on_io2 = 0;
+    last_state1 = Read_LedOn3;
+    last_state2 = Read_LedOn4;
     select_channel = 0;
+    current_show = 0;
     while(1)
     {
         rt_memset(&buff, 0, sizeof(buff));
-
-        if(Read_LedOn1 != last_state1)//状态变化
-               {
-                   if(Read_LedOn1 == 0)//低电平
-                   {
-                       if(on_shine_page == 0)
-                       {
-                           led_on_io1=1;
-                           shine_init();//照射初始化
-                           read_temp_running = 1;
-                           switch_show(1);
-                       }
-                   }else {
-
-                          }
-                   last_state1 = Read_LedOn1;
-               }
-               if(Read_LedOn2 != last_state2)//状态变化
-               {
-                   if(Read_LedOn2 == 0)//低电平
-                   {
-                       if(on_shine_page == 0)
-                      {
-                          led_on_io2=1;
-                          shine_init();//照射初始化
-                          read_temp_running = 1;
-                          switch_show(1);
-                      }
-                   }else {
-
-                          }
-                   last_state2 = Read_LedOn2;
-               }
-
-
         if(rt_mq_recv(lcd_command_mq, &buff, sizeof(buff), 200)==RT_EOK)
         {
             //rt_device_write(RS485_com, 0, &msg.send_uart, msg.len);
@@ -546,6 +524,7 @@ void lcd_command_entry(void *parameter)//lcd命令执行
                         break;
                         case 8://恢复出厂
                             UpdataLcdString(reset_password_state, 1, "请输入密码");
+                            select_channel = 6;
                         break;
                         case 9://查看参数
                             view_parameters();//查看参数界面
@@ -704,6 +683,14 @@ void lcd_command_entry(void *parameter)//lcd命令执行
                             select_channel = 4;
                             UpdataLcdString(clear_alltime_password_state, 1, "请输入密码");
                         break;
+                        case current_set_key:
+                            select_channel = 5;
+                            receive_password = 0;//清空密码
+                            UpdataLcdString(reset_password_state, 1, "请输入密码");
+                        break;
+                        case current_return_key:
+                            current_show = 0;
+                        break;
                         case clear_alltime_password_ok_key://清空计时密码界面确认按键
                             if(password==receive_password)//密码正确
                             {
@@ -735,6 +722,9 @@ void lcd_command_entry(void *parameter)//lcd命令执行
                                         channel4.time_seconds = 0;
                                         save();
                                     break;
+                                    case 5:
+
+                                    break;
                                     default:
                                     break;
                                 }
@@ -750,7 +740,14 @@ void lcd_command_entry(void *parameter)//lcd命令执行
                         case reset_password_ok_key://恢复出厂设置
                             if(password==receive_password)//密码正确
                             {
-                                switch_show(4);
+                                if(select_channel==5)
+                                {
+                                    switch_show(24);
+                                    current_show = 1;
+                                    UpdataSetCurrent();
+                                }else {
+                                    switch_show(4);
+                                }
                             }else {
                                 UpdataLcdString(clear_alltime_password_state, 1, "密码错误     ");
                             }
@@ -767,9 +764,17 @@ void lcd_command_entry(void *parameter)//lcd命令执行
                         case reset_cancel://取消恢复出厂
                             receive_password =0;
                         break;
+                        case sync_mode_key:
+                            if(channel_sync_mode == 0)
+                            {
+                                channel_sync_mode = 1;
+                            }else {
+                                channel_sync_mode = 0;
+                            }
+                            updata_control_mode();
+                        break;
                         default:
                         break;
-
                     }
                 break;
 
@@ -783,7 +788,8 @@ void lcd_command_entry(void *parameter)//lcd命令执行
                     channel1.delay_time = buff[8];
                 break;
                 case parameter_page_c1_current://C1电流设置
-                    channel1.set_current = buff[7]*256+buff[8];
+                    //channel1.set_current = buff[7]*256+buff[8];
+                    channel1.alarm_temperature = buff[8];
                 break;
 
                 case parameter_page_c2_power://C2照射功率设置
@@ -796,9 +802,33 @@ void lcd_command_entry(void *parameter)//lcd命令执行
                     channel2.delay_time = buff[8];
                 break;
                 case parameter_page_c2_current://C2电流设置
-                    channel2.set_current = buff[7]*256+buff[8];
+                    //channel2.set_current = buff[7]*256+buff[8];
+                    channel2.alarm_temperature = buff[8];
                 break;
-
+                case parameter_current_c1:
+                    channel1.set_current = buff[7]*256+buff[8];
+                    if (channel1.set_current>1400) {
+                        channel1.set_current = 1400;
+                    }
+                break;
+                case parameter_current_c2:
+                    channel2.set_current = buff[7]*256+buff[8];
+                    if (channel2.set_current>1400) {
+                        channel2.set_current = 1400;
+                    }
+                break;
+                case parameter_current_c3:
+                    channel3.set_current = buff[7]*256+buff[8];
+                    if (channel3.set_current>1400) {
+                        channel3.set_current = 1400;
+                    }
+                break;
+                case parameter_current_c4:
+                    channel4.set_current = buff[7]*256+buff[8];
+                    if (channel4.set_current>1400) {
+                        channel4.set_current = 1400;
+                    }
+                break;
                 case parameter_page_c3_power://C3照射功率设置
                     channel3.power = buff[8];
                 break;
@@ -809,7 +839,8 @@ void lcd_command_entry(void *parameter)//lcd命令执行
                     channel3.delay_time = buff[8];
                 break;
                 case parameter_page_c3_current://C3电流设置
-                    channel3.set_current = buff[7]*256+buff[8];
+                    //channel3.set_current = buff[7]*256+buff[8];
+                    channel3.alarm_temperature = buff[8];
                 break;
 
                 case parameter_page_c4_power://C4照射功率设置
@@ -821,8 +852,9 @@ void lcd_command_entry(void *parameter)//lcd命令执行
                 case parameter_page_c4_delay://C4延时间设置
                     channel4.delay_time = buff[8];
                 break;
-                case parameter_page_c4_current://C4电流设置
-                    channel4.set_current = buff[7]*256+buff[8];
+                case parameter_page_c4_current://C4温度设置
+                    //channel4.set_current = buff[7]*256+buff[8];
+                    channel4.alarm_temperature = buff[8];
                 break;
                 //多段设置 通道1功率
                 case c1_multistage_set1:

@@ -175,7 +175,7 @@ void modbus_set_ch1(rt_uint16_t in_address,rt_uint16_t num)//mosbus设置 通道
             channel1.time_minutes = num;
         break;
         case 7:
-            channel1.Enable = num;
+            channel1.status = num;
         break;
         case 8:
             channel1.control_mode = num;
@@ -265,7 +265,7 @@ void modbus_set_ch2(rt_uint16_t in_address,rt_uint16_t num)//mosbus设置 通道
             channel2.time_minutes = num;
         break;
         case 7:
-            channel2.Enable = num;
+            channel2.status = num;
         break;
         case 8:
             channel2.control_mode = num;
@@ -355,7 +355,7 @@ void modbus_set_ch3(rt_uint16_t in_address,rt_uint16_t num)//mosbus设置 通道
             channel3.time_minutes = num;
         break;
         case 7:
-            channel3.Enable = num;
+            channel3.status = num;
         break;
         case 8:
             channel3.control_mode = num;
@@ -445,7 +445,7 @@ void modbus_set_ch4(rt_uint16_t in_address,rt_uint16_t num)//mosbus设置 通道
             channel4.time_minutes = num;
         break;
         case 7:
-            channel4.Enable = num;
+            channel4.status = num;
         break;
         case 8:
             channel4.control_mode = num;

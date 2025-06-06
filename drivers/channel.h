@@ -14,6 +14,7 @@ extern struct channel channel2;
 extern struct channel channel3;
 extern struct channel channel4;
 extern struct channel_control control_mode;
+extern rt_uint8_t channel_sync_mode;//同步模式 = 0异步模式 = 1同步模式
 #define c1base_addr 0x807f800
 #define c2base_addr 0x807f800+150
 #define c3base_addr 0x807f800+300
@@ -32,6 +33,7 @@ extern struct channel_control control_mode;
 #define channel1_multistage_time_addr c1base_addr+20
 #define channel1_multistage_power_addr c1base_addr+60
 #define channel1_current_addr c1base_addr+100
+#define channel1_temperature_addr c1base_addr+102
 
 
 #define channel2_power_addr c2base_addr+0
@@ -47,7 +49,7 @@ extern struct channel_control control_mode;
 #define channel2_multistage_time_addr c2base_addr+20
 #define channel2_multistage_power_addr c2base_addr+60
 #define channel2_current_addr c2base_addr+100
-
+#define channel2_temperature_addr c2base_addr+102
 
 #define channel3_power_addr c3base_addr+0
 #define channel3_time_addr c3base_addr+2
@@ -62,6 +64,7 @@ extern struct channel_control control_mode;
 #define channel3_multistage_time_addr c3base_addr+20
 #define channel3_multistage_power_addr c3base_addr+60
 #define channel3_current_addr c3base_addr+100
+#define channel3_temperature_addr c3base_addr+102
 
 #define channel4_power_addr c4base_addr+0
 #define channel4_time_addr c4base_addr+2
@@ -76,7 +79,8 @@ extern struct channel_control control_mode;
 #define channel4_multistage_time_addr c4base_addr+20
 #define channel4_multistage_power_addr c4base_addr+60
 #define channel4_current_addr c4base_addr+100
-
+#define channel4_temperature_addr c4base_addr+102
+#define sync_mode_addr c4base_addr+104
 struct channel_control
 {
     rt_uint8_t control_mode;//模式 0手动 1自动
@@ -101,5 +105,6 @@ struct channel
     rt_uint8_t cycle;//多段循环次数
     rt_uint8_t Enable;//通道使能
     rt_uint16_t set_current;//设置电流
+    rt_uint16_t set_temperature;//设置电流
 };
 #endif /* DRIVERS_CHANNEL_H_ */

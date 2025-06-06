@@ -44,20 +44,15 @@ void gpio_init()
     gpio_init_struct.Mode = GPIO_MODE_OUTPUT_PP;            /* 推挽输出 */
     gpio_init_struct.Pin = GPIO_PIN_9|GPIO_PIN_7|GPIO_PIN_6|GPIO_PIN_8|GPIO_PIN_0;
     HAL_GPIO_Init(GPIOB, &gpio_init_struct);       /* 初始化LED0引脚 */
-    gpio_init_struct.Pin = GPIO_PIN_13|GPIO_PIN_9;
+    gpio_init_struct.Pin = GPIO_PIN_13|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_12;
     HAL_GPIO_Init(GPIOC, &gpio_init_struct);       /* 初始化LED0引脚 */
+
 
     gpio_init_struct.Pin = GPIO_PIN_4|GPIO_PIN_5;                   /* LED0引脚 */
     gpio_init_struct.Mode = GPIO_MODE_INPUT;            /* 推挽输出 */
     gpio_init_struct.Pull = GPIO_NOPULL;                    /* 上拉 */
     gpio_init_struct.Speed = GPIO_SPEED_FREQ_HIGH;          /* 高�   */
     HAL_GPIO_Init(GPIOB , &gpio_init_struct);       /* 初始化LED0引脚 */
-
-    gpio_init_struct.Pin = GPIO_PIN_11|GPIO_PIN_12;                   /* LED0引脚 */
-    gpio_init_struct.Mode = GPIO_MODE_INPUT;            /* 推挽输出 */
-    gpio_init_struct.Pull = GPIO_NOPULL;                    /* 上拉 */
-    gpio_init_struct.Speed = GPIO_SPEED_FREQ_HIGH;          /* 高�   */
-    HAL_GPIO_Init(GPIOC , &gpio_init_struct);       /* 初始化LED0引脚 */
 
     Light1_ON;
     Light2_ON;
@@ -73,4 +68,8 @@ void gpio_init()
     Alarm4_OFF;
     NC1_OFF;
     NC2_OFF;
+    FAN1_OFF;
+    FAN2_OFF;
+    FAN3_OFF;
+    FAN4_OFF;
 }
