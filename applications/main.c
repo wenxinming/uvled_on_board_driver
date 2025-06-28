@@ -18,6 +18,7 @@
 #define UART_NAME "uart2"
 #include <lcd.h>
 #include <led.h>
+#include <uart.h>
 extern void shine_init();//照射 初始化
 extern void current_init();
 extern void rs485_init();
@@ -25,6 +26,7 @@ extern void pwm_init();
 extern void adc_init();
 extern void channel_init();
 extern void gpio_init();
+u_int32_t total,used,maxused;
 void ftoa(float num,char * buff)
 {
     rt_uint8_t s1[10];
@@ -40,6 +42,7 @@ void ftoa(float num,char * buff)
     strcat(buff,".");
     strcat(buff,s2);
     //rt_kprintf(str, "%d.%03d", integer, decimal);
+
 }
 int main(void)
 {
@@ -47,8 +50,10 @@ int main(void)
     rt_thread_mdelay(2000);
     gpio_init();
     lcd_init();//
+
     channel_init();//
     temperature_init();
+
     adc_init();
     pwm_init();
     rs485_init();
@@ -59,6 +64,7 @@ int main(void)
     //LOG_D("light mode == %f",0.01);*/
     while (1)
     {
+        rt_memory_info(&total,&used,&maxused);
         rt_thread_mdelay(1000);
     }
     return RT_EOK;

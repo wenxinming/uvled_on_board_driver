@@ -66,4 +66,5 @@ extern void set_ch1_output(rt_uint8_t num);
 extern void set_ch2_output(rt_uint8_t num);
 extern void set_ch3_output(rt_uint8_t num);
 extern void set_ch4_output(rt_uint8_t num);
+extern void set_ch1_output2(rt_uint16_t num);
 #endif /* DRIVERS_PWM_H_ */

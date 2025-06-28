@@ -24,6 +24,9 @@ void gpio_init()
     __HAL_RCC_GPIOD_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
 
+    __HAL_RCC_AFIO_CLK_ENABLE();
+    __HAL_AFIO_REMAP_SWJ_NOJTAG();      //关闭JTAG
+    DBGMCU->CR  &= ~((uint32_t)1<<5);   //关闭异步跟踪，否则PB3将一直读出0
 
     gpio_init_struct.Pin = GPIO_PIN_1|GPIO_PIN_12|GPIO_PIN_2|GPIO_PIN_13|GPIO_PIN_10|GPIO_PIN_14|GPIO_PIN_0;                   /* LED0引脚 */
     gpio_init_struct.Mode = GPIO_MODE_OUTPUT_PP;            /* 推挽输出 */
@@ -42,26 +45,26 @@ void gpio_init()
     gpio_init_struct.Pin = GPIO_PIN_3;                   /* LED0引脚 */
     HAL_GPIO_Init(GPIOB , &gpio_init_struct);       /* 初始化LED0引脚 */
     gpio_init_struct.Mode = GPIO_MODE_OUTPUT_PP;            /* 推挽输出 */
-    gpio_init_struct.Pin = GPIO_PIN_9|GPIO_PIN_7|GPIO_PIN_6|GPIO_PIN_8|GPIO_PIN_0;
+    gpio_init_struct.Pin = GPIO_PIN_9|GPIO_PIN_7|GPIO_PIN_6|GPIO_PIN_8|GPIO_PIN_0|GPIO_PIN_5;
     HAL_GPIO_Init(GPIOB, &gpio_init_struct);       /* 初始化LED0引脚 */
-    gpio_init_struct.Pin = GPIO_PIN_13|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_12;
+    gpio_init_struct.Pin = GPIO_PIN_13|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_4;
     HAL_GPIO_Init(GPIOC, &gpio_init_struct);       /* 初始化LED0引脚 */
 
 
-    gpio_init_struct.Pin = GPIO_PIN_4|GPIO_PIN_5;                   /* LED0引脚 */
+    gpio_init_struct.Pin = GPIO_PIN_4;                   /* LED0引脚 */
     gpio_init_struct.Mode = GPIO_MODE_INPUT;            /* 推挽输出 */
     gpio_init_struct.Pull = GPIO_NOPULL;                    /* 上拉 */
     gpio_init_struct.Speed = GPIO_SPEED_FREQ_HIGH;          /* 高�   */
     HAL_GPIO_Init(GPIOB , &gpio_init_struct);       /* 初始化LED0引脚 */
 
-    Light1_ON;
-    Light2_ON;
-    Light3_ON;
-    Light4_ON;
-    Complete1_ON;
-    Complete2_ON;
-    Complete3_ON;
-    Complete4_ON;
+    Light1_OFF;
+    Light2_OFF;
+    Light3_OFF;
+    Light4_OFF;
+    Complete1_OFF;
+    Complete2_OFF;
+    Complete3_OFF;
+    Complete4_OFF;
     Alarm1_OFF;
     Alarm2_OFF;
     Alarm3_OFF;

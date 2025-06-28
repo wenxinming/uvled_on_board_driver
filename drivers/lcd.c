@@ -21,8 +21,17 @@ rt_thread_t lcdcommand,lcdsend;
 rt_uint8_t on_shine_page;
 //rt_err_t sl;
 extern void shine_entry(void *parameter);//lcd命令执行
+
+// 清空参数密码
+rt_uint32_t password_clear=891227;//设置密码
+rt_uint32_t receive_password_clear;//触摸屏清空接收密码
+// 恢复出厂设置密码
+//rt_uint32_t password_reset=891227;//设置密码
+//rt_uint32_t receive_password_reset;//触摸屏恢复出厂接收密码
+// 其他密码(恢复出厂设置密码, 电流设置)
 rt_uint32_t password=123456;//设置密码
 rt_uint32_t receive_password;//触摸屏接收密码
+
 rt_uint8_t select_channel;
 rt_uint8_t current_show;
 typedef struct
@@ -30,6 +39,8 @@ typedef struct
     rt_uint8_t send_uart[24];
     rt_uint8_t len;
 } lcd_uart_send;
+lcd_uart_send lcdsendbuf;
+rt_uint8_t sendbuffer[24];
 int Myatoi(const char *str)         //字符串转换成数字的函数
 {
     int i = 1;
@@ -478,6 +489,7 @@ void lcd_command_entry(void *parameter)//lcd命令执行
                                 if(channel1.status)
                                 {
                                     channel1.status = 0;
+                                    led1_button_off_strup;
                                 }else {
                                     channel1.status = 1;
                                 }
@@ -489,6 +501,7 @@ void lcd_command_entry(void *parameter)//lcd命令执行
                                 if(channel2.status)
                                 {
                                     channel2.status = 0;
+                                    led2_button_off_strup;
                                 }else {
                                     channel2.status = 1;
                                 }
@@ -500,6 +513,7 @@ void lcd_command_entry(void *parameter)//lcd命令执行
                                 if(channel3.status)
                                 {
                                     channel3.status = 0;
+                                    led3_button_off_strup;
                                 }else {
                                     channel3.status = 1;
                                 }
@@ -511,6 +525,7 @@ void lcd_command_entry(void *parameter)//lcd命令执行
                                 if(channel4.status)
                                 {
                                     channel4.status = 0;
+                                    led4_button_off_strup;
                                 }else {
                                     channel4.status = 1;
                                 }
@@ -523,7 +538,7 @@ void lcd_command_entry(void *parameter)//lcd命令执行
                             updata_parameter();//照射参数
                         break;
                         case 8://恢复出厂
-                            UpdataLcdString(reset_password_state, 1, "请输入密码");
+                            UpdataLcdString(reset_password_state, 1, "Input password:  ");
                             select_channel = 6;
                         break;
                         case 9://查看参数
@@ -669,33 +684,33 @@ void lcd_command_entry(void *parameter)//lcd命令执行
                         break;
                         case c1_clear_alltime_key:
                             select_channel = 1;
-                            UpdataLcdString(clear_alltime_password_state, 1, "请输入密码");
+                            UpdataLcdString(clear_alltime_password_state, 1, "Input password:  ");
                         break;
                         case c2_clear_alltime_key:
                             select_channel = 2;
-                            UpdataLcdString(clear_alltime_password_state, 1, "请输入密码");
+                            UpdataLcdString(clear_alltime_password_state, 1, "Input password:  ");
                         break;
                         case c3_clear_alltime_key:
                             select_channel = 3;
-                            UpdataLcdString(clear_alltime_password_state, 1, "请输入密码");
+                            UpdataLcdString(clear_alltime_password_state, 1, "Input password:  ");
                         break;
                         case c4_clear_alltime_key:
                             select_channel = 4;
-                            UpdataLcdString(clear_alltime_password_state, 1, "请输入密码");
+                            UpdataLcdString(clear_alltime_password_state, 1, "Input password:  ");
                         break;
                         case current_set_key:
                             select_channel = 5;
-                            receive_password = 0;//清空密码
-                            UpdataLcdString(reset_password_state, 1, "请输入密码");
+                            receive_password = 0; //清空密码
+                            UpdataLcdString(reset_password_state, 1, "Input password:  ");
                         break;
                         case current_return_key:
                             current_show = 0;
                         break;
                         case clear_alltime_password_ok_key://清空计时密码界面确认按键
-                            if(password==receive_password)//密码正确
+                            if(password_clear==receive_password_clear)//密码正确
                             {
                                 switch_show(23);
-                                receive_password = 0;//清空密码
+                                receive_password_clear = 0;//清空密码
                                 switch (select_channel)
                                 {
                                     case 1:
@@ -730,11 +745,11 @@ void lcd_command_entry(void *parameter)//lcd命令执行
                                 }
                                 view_parameters();//查看参数界面
                             }else {
-                                UpdataLcdString(clear_alltime_password_state, 1, "密码错误     ");
+                                UpdataLcdString(clear_alltime_password_state, 1, "Password error  ");
                             }
                         break;
                         case clear_alltime_password_cancel_key:
-                            receive_password = 0;//清空密码
+                            receive_password_clear = 0;//清空密码
                             view_parameters();//查看参数界面
                         break;
                         case reset_password_ok_key://恢复出厂设置
@@ -749,7 +764,7 @@ void lcd_command_entry(void *parameter)//lcd命令执行
                                     switch_show(4);
                                 }
                             }else {
-                                UpdataLcdString(clear_alltime_password_state, 1, "密码错误     ");
+                                UpdataLcdString(clear_alltime_password_state, 1, "Password error  ");
                             }
                         break;
                         case reset_password_cancel_key://恢复出厂 返回
@@ -1053,21 +1068,21 @@ void lcd_command_entry(void *parameter)//lcd命令执行
                     channel4.cycle = buff[7]*256+buff[8];
                 break;
                 case clear_alltime_password://清空照射时间密码
-                    receive_password = (buff[7]<<24)+(buff[8]<<16)+(buff[9]<<8)+(buff[10]);
-                    if(receive_password == password)//密码正确
+                    receive_password_clear = (buff[7]<<24)+(buff[8]<<16)+(buff[9]<<8)+(buff[10]);
+                    if(receive_password_clear == password_clear)//密码正确
                     {
-                        UpdataLcdString(clear_alltime_password_state, 1, "密码正确  ");
+                        UpdataLcdString(clear_alltime_password_state, 1, "Password correct  ");
                     }else {
-                        UpdataLcdString(clear_alltime_password_state, 1, "密码错误  ");
+                        UpdataLcdString(clear_alltime_password_state, 1, "Password error    ");
                     }
                 break;
                 case reset_password://出厂设置
                     receive_password = (buff[7]<<24)+(buff[8]<<16)+(buff[9]<<8)+(buff[10]);
                     if(receive_password == password)//密码正确
                     {
-                        UpdataLcdString(reset_password_state, 1, "密码正确  ");
+                        UpdataLcdString(reset_password_state, 1, "Password correct  ");
                     }else {
-                        UpdataLcdString(reset_password_state, 1, "密码错误  ");
+                        UpdataLcdString(reset_password_state, 1, "Password error    ");
                     }
                 break;
                 case 5://恢复出厂
@@ -1241,13 +1256,15 @@ void lcd_command_entry(void *parameter)//lcd命令执行
 }
 void lcd_command_send_entry(void *parameter)//lcd命令执行
 {
-    lcd_uart_send lcdsendbuf;
     while(1)
     {
         rt_memset(&lcdsendbuf, 0, sizeof(lcdsendbuf));
         if(rt_mq_recv(lcd_command_send_mq, &lcdsendbuf, sizeof(lcdsendbuf), RT_WAITING_FOREVER)==RT_EOK)
         {
+
+            memcpy(sendbuffer,lcdsendbuf.send_uart,24);
             HAL_UART_Transmit(&huart2, lcdsendbuf.send_uart, lcdsendbuf.len, HAL_MAX_DELAY);
+            //HAL_UART_Transmit_DMA(&huart2, &sendbuffer, lcdsendbuf.len);
         }
     }
 }

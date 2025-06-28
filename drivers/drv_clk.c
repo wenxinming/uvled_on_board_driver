@@ -29,7 +29,7 @@ void system_clock_config(int target_freq_Mhz)
        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
        RCC_OscInitStruct.HSEState = RCC_HSE_ON;
        RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
-       RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+       RCC_OscInitStruct.HSIState = RCC_HSI_OFF;
        RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
        RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
        RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
@@ -67,5 +67,10 @@ INIT_BOARD_EXPORT(clock_information);
 
 void clk_init(char *clk_source, int source_freq, int target_freq)
 {
-    system_clock_config(target_freq);
+    /*
+     * Use SystemClock_Config generated from STM32CubeMX for clock init
+     * system_clock_config(target_freq);
+     */
+    //extern void SystemClock_Config(void);
+    system_clock_config(72000000);
 }

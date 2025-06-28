@@ -14,13 +14,17 @@
 #include <math.h>
 #include <lcd_string.h>
 #include <lcd.h>
+#include <pwm.h>
 rt_thread_t read_current;
+rt_thread_t current_set;
 float adc1,adc2,adc3,adc4;
 rt_uint16_t current1,current2,current3,current4;
 rt_uint8_t read_current_watch;
 rt_uint16_t tempadc;
 extern rt_uint16_t adc_temp[2000];
-
+rt_int16_t currentset1,currentset2,currentset3,currentset4;
+rt_int16_t c1_set,c2_set,c3_set,c4_set;
+extern rt_uint16_t set_pwm1,set_pwm2,set_pwm3,set_pwm4;
 float calculate_rms(rt_uint16_t *signal, rt_uint16_t length)
 {
     float sum_of_squares = 0.0;
@@ -39,13 +43,17 @@ float calculate_mean(rt_uint16_t *signal, rt_uint16_t length)
     }
     return (sum_of_squares / length);
 }
+
 void read_current_entry(void *parameter)//温度刷新
 {
     //40毫欧 50倍放大
     rt_uint8_t turn[10];
     rt_uint16_t i=0;
+    rt_uint16_t time;
     float tempadc;
     rt_memset(&turn, 0, 10);
+    currentset1 = 0;
+    time = 0;
     while(1)
     {
        // adc1 = adc_get_result_average(0, 1);    /* 获取ADC通道的转换值，10次取平均 */
@@ -112,11 +120,82 @@ void read_current_entry(void *parameter)//温度刷新
             tempadc = 0.98;
         }
         current4 *= tempadc;
+        if(time>=20)
+        {
+            time=0;
+            UpdataLcdDataU8(show_current_c1,0,current1);//更新电流
+            UpdataLcdDataU8(show_current_c2,0,current2);//更新电流
+            UpdataLcdDataU8(show_current_c3,0,current3);//更新电流
+            UpdataLcdDataU8(show_current_c4,0,current4);//更新电流
+        }
 
-        UpdataLcdDataU8(show_current_c1,0,current1);//更新电流
-        UpdataLcdDataU8(show_current_c2,0,current2);//更新电流
-        UpdataLcdDataU8(show_current_c3,0,current3);//更新电流
-        UpdataLcdDataU8(show_current_c4,0,current4);//更新电流
+        if((set_pwm1!=0)&&(channel1.status == 1)&&(c1_set<70)&&channel1.control_mode==0)
+        {
+            if(abs(current1-c1_set)>5)
+            {
+                if(current1<c1_set)
+                {
+                    set_ch1_output2(currentset1+set_pwm1);//设置PWM占空比
+                    currentset1 += 5;
+                }else {
+                    set_ch1_output2(set_pwm1+currentset1);//设置PWM占空比
+                    currentset1 -= 5;
+                }
+            }
+        }else {
+            currentset1 = 0;
+        }
+
+        if((set_pwm2!=0)&&(channel2.status == 1)&&(c2_set<70)&&channel2.control_mode==0)
+        {
+            if(abs(current2-c2_set)>5)
+            {
+                if(current2<c2_set)
+                {
+                    set_ch2_output2(currentset2+set_pwm2);//设置PWM占空比
+                    currentset2 += 5;
+                }else {
+                    set_ch2_output2(set_pwm2+currentset2);//设置PWM占空比
+                    currentset2 -= 5;
+                }
+            }
+        }else {
+            currentset2 = 0;
+        }
+
+        if((set_pwm3!=0)&&(channel3.status == 1)&&(c3_set<70)&&channel3.control_mode==0)
+        {
+            if(abs(current3-c3_set)>5)
+            {
+                if(current3<c3_set)
+                {
+                    set_ch3_output2(currentset3+set_pwm3);//设置PWM占空比
+                    currentset3 += 5;
+                }else {
+                    set_ch3_output2(set_pwm3+currentset3);//设置PWM占空比
+                    currentset3 -= 5;
+                }
+            }
+        }else {
+            currentset3 = 0;
+        }
+
+        if((set_pwm4!=0)&&(channel4.status == 1)&&(c4_set<70)&&channel4.control_mode==0)
+        {
+            if(abs(current4-c4_set)>5)
+            {
+                if(current4<c4_set)
+                {
+                    set_ch4_output2(currentset4+set_pwm4);//设置PWM占空比
+                    currentset4 += 5;
+                }else {
+                    set_ch4_output2(set_pwm4+currentset4);//设置PWM占空比
+                    currentset4 -= 5;
+                }
+            }
+        }else {
+            currentset4 = 0;
+        }
         /*
         if(read_temp_watch)
         {
@@ -125,7 +204,6 @@ void read_current_entry(void *parameter)//温度刷新
             ftoa(Temp2,turn);
             UpdataLcdString(3,4,turn);
         }
-        if(read_temp_running)
         {
             //UpdataLcdDataFloat(7,3,Temp1);
             //UpdataLcdDataFloat(7,14,Temp2);
@@ -134,7 +212,8 @@ void read_current_entry(void *parameter)//温度刷新
             ftoa(Temp2,turn);
             UpdataLcdString(7,14,turn);
         }*/
-        rt_thread_mdelay(1000);
+        rt_thread_mdelay(50);
+        time++;
     }
 }
 

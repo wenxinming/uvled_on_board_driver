@@ -446,7 +446,7 @@ int rt_hw_usart_init(void)
     return RT_EOK;
 }
 INIT_BOARD_EXPORT(rt_hw_usart_init);
-
+/*
 void rt_hw_console_output(const char *str)
 {
     rt_size_t i = 0, size = 0;
@@ -457,11 +457,11 @@ void rt_hw_console_output(const char *str)
     {
         if (*(str + i) == '\n')
         {
-            HAL_UART_Transmit(&handle, (uint8_t *)&a, 1, 1);
+            HAL_UART_Transmit(&huart1, (uint8_t *)&a, 1, 1);
         }
-        HAL_UART_Transmit(&handle, (uint8_t *)(str + i), 1, 1);
+        HAL_UART_Transmit(&huart1, (uint8_t *)(str + i), 1, 1);
     }
-}
+}*/
 
 #ifdef RT_USING_FINSH
 char rt_hw_console_getchar(void)

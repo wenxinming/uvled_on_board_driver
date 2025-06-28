@@ -22,4 +22,5 @@ typedef struct
     rt_uint8_t send_uart[64];
     rt_uint8_t len;
 } uart2msg;
+extern void HAL_UART_MspInit(UART_HandleTypeDef *huart);
 #endif /* DRIVERS_UART_H_ */

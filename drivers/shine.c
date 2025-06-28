@@ -19,7 +19,11 @@
 rt_thread_t c1,c2,c3,c4;
 extern rt_uint8_t on_shine_page;
 extern rt_uint16_t set_pwm1,set_pwm2,set_pwm3,set_pwm4;
-rt_thread_t l_off1,l_off2,l_off3,l_off4;
+rt_thread_t l_off1, l_off2, l_off3, l_off4;
+
+extern rt_int16_t c1_set,c2_set,c3_set,c4_set;
+
+
 void light_fan_delay_off1(void *parameter)
 {
     rt_thread_mdelay(channel1.delay_time*1000);
@@ -40,48 +44,54 @@ void light_fan_delay_off4(void *parameter)
     rt_thread_mdelay(channel4.delay_time*1000);
     FAN4_OFF;
 }
+
 void FanOFF1()
 {
-    l_off1 = rt_thread_create("lightoff1", light_fan_delay_off1, RT_NULL, 1024, 20, 10);
+    l_off1 = rt_thread_create("lightoff1", light_fan_delay_off1, RT_NULL, 1024, 30, 100);
+    if(l_off1 != RT_NULL)
     rt_thread_startup(l_off1);//启动线程
 }
+
 void FanOFF2()
 {
-    l_off2 = rt_thread_create("lightoff2", light_fan_delay_off2, RT_NULL, 1024, 20, 10);
+    l_off2 = rt_thread_create("lightoff2", light_fan_delay_off2, RT_NULL, 1024, 30, 100);
+    if(l_off2 != RT_NULL)
     rt_thread_startup(l_off2);//启动线程
 }
 void FanOFF3()
 {
-    l_off3 = rt_thread_create("lightoff3", light_fan_delay_off3, RT_NULL, 1024, 20, 10);
+    l_off3 = rt_thread_create("lightoff3", light_fan_delay_off3, RT_NULL, 1024, 30, 100);
+    if(l_off3 != RT_NULL)
     rt_thread_startup(l_off3);//启动线程
 }
 void FanOFF4()
 {
-    l_off4 = rt_thread_create("lightoff4", light_fan_delay_off4, RT_NULL, 1024, 20, 10);
+    l_off4 = rt_thread_create("lightoff4", light_fan_delay_off4, RT_NULL, 1024, 30, 100);
+    if(l_off4 != RT_NULL)
     rt_thread_startup(l_off4);//启动线程
 }
 void FanON1()
 {
-    if(l_off1!=0)
-    rt_thread_delete(l_off1);
+    if(l_off1!=RT_NULL)
+        rt_thread_delete(l_off1);
     FAN1_ON;
 }
 void FanON2()
 {
-    if(l_off2!=0)
-    rt_thread_delete(l_off2);
+    if(l_off2!=RT_NULL)
+        rt_thread_delete(l_off2);
     FAN2_ON;
 }
 void FanON3()
 {
-    if(l_off3!=0)
-    rt_thread_delete(l_off3);
+    if(l_off3!=RT_NULL)
+        rt_thread_delete(l_off3);
     FAN3_ON;
 }
 void FanON4()
 {
-    if(l_off4!=0)
-    rt_thread_delete(l_off4);
+    if(l_off4!=RT_NULL)
+        rt_thread_delete(l_off4);
     FAN4_ON;
 }
 void channel1_manual()
@@ -89,20 +99,24 @@ void channel1_manual()
     rt_uint32_t all_time1;
     rt_uint8_t last_state1;//外部开灯IO状态
     rt_uint8_t alarm_status=0;
+    rt_uint8_t time_temp;
     Alarm1_OFF;
+    NC1_OFF;
     Light1_OFF;
     last_state1 = Read_LedOn1;
     Complete1_OFF;
     channel1.now_time_s = 0;
+    Clear_string1;
     led1_open_strup;
     led1_power_strup;
     set_ch1_output(channel1.power);//设置PWM占空比
     ch1_output_on();//使能PWM输出
     Light1_ON;
     led1_button_on_strup;
+    time_temp = 0;
     while(1)
     {
-        UpdataLcdDataU8(monitor_page_current_c1,0,current1);
+        //UpdataLcdDataU8(monitor_page_current_c1,0,current1);
         if(Read_LedOn1 != last_state1)//状态变化
         {
             if(Read_LedOn1 == 0)//低电平
@@ -125,6 +139,7 @@ void channel1_manual()
             if(Temp1>=channel1.alarm_temperature)//温度报警
             {
                 Alarm1_ON;
+                NC1_ON;
                 channel1.status = 0;
                 alarm_status=1;
                 led1_temperature_alarm_strup;
@@ -134,6 +149,7 @@ void channel1_manual()
               if(Read_CheckLed1==1)//报警
               {
                 Alarm1_ON;
+                NC1_ON;
                 alarm_status=1;
                 channel1.status = 0;
                 led1_checkled_alarm_strup;
@@ -141,18 +157,25 @@ void channel1_manual()
               if(current1<(set_pwm1/1000.0*1500-100))//比较电流
               {
                   Alarm1_ON;
+                  NC1_ON;
                   alarm_status=1;
                   channel1.status = 0;
                   led1_current_alarm_strup;
               }
             }
-            channel1.now_time_s++;
-            led1_now_time_strup;
+            time_temp++;
+            if(time_temp>=10)
+            {
+                time_temp = 0;
+                channel1.now_time_s++;
+                led1_now_time_strup;
+            }
         }else {
                 if(alarm_status)//如果发声报警
                 {
 
                 }else {
+                    Clear_string1;
                     led1_close_strup;
                 }
                 //EN1_OFF;
@@ -168,7 +191,7 @@ void channel1_manual()
                 save();
                 break;
         }
-        rt_thread_mdelay(1000);
+        rt_thread_mdelay(100);
     }
 }
 void channel2_manual()
@@ -176,7 +199,9 @@ void channel2_manual()
     rt_uint32_t all_time1;
     rt_uint8_t last_state1;//外部开灯IO状态
     rt_uint8_t alarm_status=0;
+    rt_uint8_t time_temp;
     Alarm2_OFF;
+    NC1_OFF;
     Light2_OFF;
     last_state1 = Read_LedOn2;
     Complete2_OFF;
@@ -187,6 +212,7 @@ void channel2_manual()
     ch2_output_on();//使能PWM输出
     Light2_ON;
     led2_button_on_strup;
+    time_temp = 0;
     while(1)
     {
         UpdataLcdDataU8(monitor_page_current_c2,0,current2);
@@ -213,6 +239,7 @@ void channel2_manual()
             if(Temp2>=channel2.alarm_temperature)//温度报警
             {
                 Alarm2_ON;
+                NC1_ON;
                 alarm_status=1;
                 channel2.status = 0;
                 led2_temperature_alarm_strup;
@@ -222,6 +249,7 @@ void channel2_manual()
               if(Read_CheckLed2==1)//报警
               {
                 Alarm2_ON;
+                NC1_ON;
                 alarm_status=1;
                 channel2.status = 0;
                 led2_checkled_alarm_strup;
@@ -229,14 +257,19 @@ void channel2_manual()
               if(current2<(set_pwm2/1000.0*1500-100))//比较电流
               {
                   Alarm2_ON;
+                  NC1_ON;
                   alarm_status=1;
                   channel2.status = 0;
                   led2_current_alarm_strup;
               }
             }
-
-            channel2.now_time_s++;
-            led2_now_time_strup;
+            time_temp++;
+            if(time_temp>=10)
+            {
+                time_temp = 0;
+                channel2.now_time_s++;
+                led2_now_time_strup;
+            }
         }else {
                 if(alarm_status)//如果发声报警
                 {
@@ -257,7 +290,7 @@ void channel2_manual()
                 save();
                 break;
         }
-        rt_thread_mdelay(1000);
+        rt_thread_mdelay(100);
     }
 }
 void channel3_manual()
@@ -265,7 +298,9 @@ void channel3_manual()
     rt_uint32_t all_time1;
     rt_uint8_t last_state1;//外部开灯IO状态
     rt_uint8_t alarm_status=0;
+    rt_uint8_t time_temp;
     Alarm3_OFF;
+    NC1_OFF;
     Light3_OFF;
     last_state1 = Read_LedOn3;
     Complete3_OFF;
@@ -276,9 +311,10 @@ void channel3_manual()
     ch3_output_on();//使能PWM输出
     Light3_ON;
     led3_button_on_strup;
+    time_temp = 0;
     while(1)
     {
-        UpdataLcdDataU8(monitor_page_current_c3,0,current3);
+        //UpdataLcdDataU8(monitor_page_current_c3,0,current3);
 
         if(Read_LedOn3 != last_state1)//状态变化
         {
@@ -303,6 +339,7 @@ void channel3_manual()
             if(Temp3>=channel3.alarm_temperature)//温度报警
             {
                 Alarm3_ON;
+                NC1_ON;
                 alarm_status=1;
                 channel3.status = 0;
                 led3_temperature_alarm_strup;
@@ -312,6 +349,7 @@ void channel3_manual()
               if(Read_CheckLed3==1)//报警
               {
                 Alarm3_ON;
+                NC1_ON;
                 alarm_status=1;
                 channel3.status = 0;
                 led3_checkled_alarm_strup;
@@ -319,13 +357,19 @@ void channel3_manual()
               if(current3<(set_pwm3/1000.0*1500-100))//比较电流
               {
                   Alarm3_ON;
+                  NC1_ON;
                   alarm_status=1;
                   channel3.status = 0;
                   led3_current_alarm_strup;
               }
             }
-            channel3.now_time_s++;
-            led3_now_time_strup;
+            time_temp++;
+            if(time_temp>=10)
+            {
+                time_temp = 0;
+                channel3.now_time_s++;
+                led3_now_time_strup;
+            }
         }else {
                 if(alarm_status)//如果发声报警
                 {
@@ -346,7 +390,7 @@ void channel3_manual()
                 save();
                 break;
         }
-        rt_thread_mdelay(1000);
+        rt_thread_mdelay(100);
     }
 }
 void channel4_manual()
@@ -354,7 +398,9 @@ void channel4_manual()
     rt_uint32_t all_time1;
     rt_uint8_t last_state1;//外部开灯IO状态
     rt_uint8_t alarm_status=0;
+    rt_uint8_t time_temp;
     Alarm4_OFF;
+    NC1_OFF;
     Light4_OFF;
     last_state1 = Read_LedOn4;
     Complete4_OFF;
@@ -365,9 +411,10 @@ void channel4_manual()
     ch4_output_on();//使能PWM输出
     Light4_ON;
     led4_button_on_strup;
+    time_temp = 0;
     while(1)
     {
-        UpdataLcdDataU8(monitor_page_current_c4,0,current4);
+        //UpdataLcdDataU8(monitor_page_current_c4,0,current4);
 
         if(Read_LedOn4 != last_state1)//状态变化
         {
@@ -392,6 +439,7 @@ void channel4_manual()
             if(Temp4>=channel4.alarm_temperature)//温度报警
             {
                 Alarm4_ON;
+                NC1_ON;
                 alarm_status=1;
                 channel4.status = 0;
                 led4_temperature_alarm_strup;
@@ -401,6 +449,7 @@ void channel4_manual()
               if(Read_CheckLed4==1)//报警
               {
                 Alarm4_ON;
+                NC1_ON;
                 alarm_status=1;
                 channel4.status = 0;
                 led4_checkled_alarm_strup;
@@ -408,13 +457,20 @@ void channel4_manual()
               if(current4<(set_pwm4/1000.0*1500-100))//比较电流
               {
                   Alarm4_ON;
+                  NC1_ON;
                   alarm_status=1;
                   channel4.status = 0;
                   led4_current_alarm_strup;
               }
             }
-            channel4.now_time_s++;
-            led4_now_time_strup;
+            time_temp++;
+            if(time_temp>=10)
+            {
+                time_temp = 0;
+                channel4.now_time_s++;
+                led4_now_time_strup;
+            }
+
         }else {
                 if(alarm_status)//如果发声报警
                 {
@@ -435,19 +491,23 @@ void channel4_manual()
                 save();
                 break;
         }
-        rt_thread_mdelay(1000);
+        rt_thread_mdelay(100);
     }
 }
+
 void channel1_auto()
 {
     rt_uint32_t all_time1;
     rt_uint8_t last_state1;//外部开灯IO状态
     rt_uint8_t alarm_status=0;
+    rt_uint8_t time_temp=0;
     Alarm1_OFF;
+    NC1_OFF;
     Light1_OFF;
     last_state1 = Read_LedOn1;
     Complete1_OFF;
     channel1.now_time_s = 0;
+    Clear_string1;
     led1_open_strup;
     led1_power_strup;
     set_ch1_output(channel1.power);//设置PWM占空比
@@ -471,7 +531,7 @@ void channel1_auto()
                    }
             last_state1 = Read_LedOn1;
         }
-        UpdataLcdDataU8(monitor_page_current_c1,0,current1);//更新电流
+        //UpdataLcdDataU8(monitor_page_current_c1,0,current1);//更新电流
         if(channel1.status == 1)//通道1开启
         {
             /*
@@ -486,6 +546,7 @@ void channel1_auto()
                 if(Temp1>=channel1.alarm_temperature)//温度报警
                 {
                     Alarm1_ON;
+                    NC1_ON;
                     alarm_status=1;
                     channel1.status = 0;
                     led1_temperature_alarm_strup;
@@ -495,6 +556,7 @@ void channel1_auto()
                   if(Read_CheckLed1==1)//报警
                   {
                     Alarm1_ON;
+                    NC1_ON;
                     alarm_status=1;
                     channel1.status = 0;
                     led1_checkled_alarm_strup;
@@ -502,24 +564,31 @@ void channel1_auto()
                   if(current1<(set_pwm1/1000.0*1500-100))//比较电流
                   {
                       Alarm1_ON;
+                      NC1_ON;
                       alarm_status=1;
                       channel1.status = 0;
                       led1_current_alarm_strup;
                   }
                 }
            }
-            channel1.now_time_s++;
+            time_temp++;
+            if(time_temp>=10)
+            {
+                time_temp = 0;
+                channel1.now_time_s++;
+                led1_remaining_time_strup;
+            }
             if(channel1.now_time_s>=channel1.time)
             {
                 channel1.status = 0;
                 Complete1_ON;
             }
-            led1_remaining_time_strup;
         }else {
                 if(alarm_status)//如果发声报警
                 {
 
                 }else {
+                    Clear_string1;
                     led1_close_strup;
                 }
                 //EN1_OFF;
@@ -535,16 +604,19 @@ void channel1_auto()
                 save();
                 break;
         }
-        rt_thread_mdelay(1000);
+        rt_thread_mdelay(100);
     }
     //rt_thread_delete(shine);
 }
+
 void channel2_auto()
 {
     rt_uint32_t all_time1;
     rt_uint8_t last_state1;//外部开灯IO状态
     rt_uint8_t alarm_status=0;
+    rt_uint8_t time_temp=0;
     Alarm2_OFF;
+    NC1_OFF;
     Light2_OFF;
     last_state1 = Read_LedOn2;
     Complete2_OFF;
@@ -571,7 +643,7 @@ void channel2_auto()
                    }
             last_state1 = Read_LedOn2;
         }
-        UpdataLcdDataU8(monitor_page_current_c2,0,current2);//更新电流
+        //UpdataLcdDataU8(monitor_page_current_c2,0,current2);//更新电流
         if(channel2.status == 1)//通道1开启
         {
             /*
@@ -586,6 +658,7 @@ void channel2_auto()
                 if(Temp2>=channel2.alarm_temperature)//温度报警
                 {
                     Alarm2_ON;
+                    NC1_ON;
                     alarm_status=1;
                     channel2.status = 0;
                     led2_temperature_alarm_strup;
@@ -595,6 +668,7 @@ void channel2_auto()
                   if(Read_CheckLed2==1)//报警
                   {
                     Alarm2_ON;
+                    NC1_ON;
                     alarm_status=1;
                     channel2.status = 0;
                     led2_checkled_alarm_strup;
@@ -602,19 +676,26 @@ void channel2_auto()
                   if(current2<(set_pwm2/1000.0*1500-100))//比较电流
                   {
                       Alarm2_ON;
+                      NC1_ON;
                       alarm_status=1;
                       channel2.status = 0;
                       led2_current_alarm_strup;
                   }
                 }
            }
-            channel2.now_time_s++;
+            time_temp++;
+            if(time_temp>=10)
+            {
+                time_temp = 0;
+                channel2.now_time_s++;
+                led2_remaining_time_strup;
+            }
+
             if(channel2.now_time_s>=channel2.time)
             {
                 channel2.status = 0;
                 Complete2_ON;
             }
-            led2_remaining_time_strup;
         }else {
                 if(alarm_status)//如果发声报警
                 {
@@ -635,16 +716,19 @@ void channel2_auto()
                 save();
                 break;
         }
-        rt_thread_mdelay(1000);
+        rt_thread_mdelay(100);
     }
     //rt_thread_delete(shine);
 }
+
 void channel3_auto()
 {
     rt_uint32_t all_time1;
     rt_uint8_t last_state1;//外部开灯IO状态
     rt_uint8_t alarm_status=0;
+    rt_uint8_t time_temp=0;
     Alarm3_OFF;
+    NC1_OFF;
     Light3_OFF;
     last_state1 = Read_LedOn3;
     Complete3_OFF;
@@ -671,7 +755,7 @@ void channel3_auto()
                    }
             last_state1 = Read_LedOn3;
         }
-        UpdataLcdDataU8(monitor_page_current_c3,0,current3);//更新电流
+        //UpdataLcdDataU8(monitor_page_current_c3,0,current3);//更新电流
         if(channel3.status == 1)//通道1开启
         {
             /*
@@ -686,6 +770,7 @@ void channel3_auto()
                 if(Temp3>=channel3.alarm_temperature)//温度报警
                 {
                     Alarm3_ON;
+                    NC1_ON;
                     alarm_status=1;
                     channel3.status = 0;
                     led3_temperature_alarm_strup;
@@ -695,6 +780,7 @@ void channel3_auto()
                   if(Read_CheckLed3==1)//报警
                   {
                     Alarm3_ON;
+                    NC1_ON;
                     alarm_status=1;
                     channel3.status = 0;
                     led3_checkled_alarm_strup;
@@ -702,19 +788,27 @@ void channel3_auto()
                   if(current3<(set_pwm3/1000.0*1500-100))//比较电流
                   {
                       Alarm3_ON;
+                      NC1_ON;
                       alarm_status=1;
                       channel3.status = 0;
                       led3_current_alarm_strup;
                   }
                 }
            }
-            channel3.now_time_s++;
+            time_temp++;
+            if(time_temp>=10)
+            {
+                time_temp = 0;
+                channel3.now_time_s++;
+                led3_remaining_time_strup;
+            }
+
             if(channel3.now_time_s>=channel3.time)
             {
                 channel3.status = 0;
                 Complete3_ON;
             }
-            led3_remaining_time_strup;
+
         }else {
                 if(alarm_status)//如果发声报警
                 {
@@ -735,16 +829,19 @@ void channel3_auto()
                 save();
                 break;
         }
-        rt_thread_mdelay(1000);
+        rt_thread_mdelay(100);
     }
     //rt_thread_delete(shine);
 }
+
 void channel4_auto()
 {
     rt_uint32_t all_time1;
     rt_uint8_t last_state1;//外部开灯IO状态
     rt_uint8_t alarm_status=0;
+    rt_uint8_t time_temp=0;
     Alarm4_OFF;
+    NC1_OFF;
     Light4_OFF;
     last_state1 = Read_LedOn4;
     Complete4_OFF;
@@ -771,7 +868,7 @@ void channel4_auto()
                    }
             last_state1 = Read_LedOn4;
         }
-        UpdataLcdDataU8(monitor_page_current_c4,0,current4);//更新电流
+        //UpdataLcdDataU8(monitor_page_current_c4,0,current4);//更新电流
         if(channel4.status == 1)//通道1开启
         {
             /*
@@ -786,6 +883,7 @@ void channel4_auto()
                 if(Temp4>=channel4.alarm_temperature)//温度报警
                 {
                     Alarm4_ON;
+                    NC1_ON;
                     alarm_status=1;
                     channel4.status = 0;
                     led4_temperature_alarm_strup;
@@ -795,6 +893,7 @@ void channel4_auto()
                   if(Read_CheckLed4==1)//报警
                   {
                     Alarm4_ON;
+                    NC1_ON;
                     alarm_status=1;
                     channel4.status = 0;
                     led4_checkled_alarm_strup;
@@ -802,19 +901,25 @@ void channel4_auto()
                   if(current4<(set_pwm4/1000.0*1500-100))//比较电流
                   {
                       Alarm4_ON;
+                      NC1_ON;
                       alarm_status=1;
                       channel4.status = 0;
                       led4_current_alarm_strup;
                   }
                 }
            }
-            channel4.now_time_s++;
+            time_temp++;
+            if(time_temp>=10)
+            {
+                time_temp = 0;
+                channel4.now_time_s++;
+                led4_remaining_time_strup;
+            }
             if(channel4.now_time_s>=channel4.time)
             {
                 channel4.status = 0;
                 Complete4_ON;
             }
-            led4_remaining_time_strup;
         }else {
                 if(alarm_status)//如果发声报警
                 {
@@ -835,10 +940,11 @@ void channel4_auto()
                 save();
                 break;
         }
-        rt_thread_mdelay(1000);
+        rt_thread_mdelay(100);
     }
     //rt_thread_delete(shine);
 }
+
 void channel1_multistage()
 {
     rt_uint32_t all_time1;
@@ -846,10 +952,12 @@ void channel1_multistage()
     rt_uint8_t alarm_status=0;
     rt_uint8_t cycle1,large_cycle1;
     Alarm1_OFF;
+    NC1_OFF;
     Light1_OFF;
     last_state1 = Read_LedOn1;
     Complete1_OFF;
     channel1.now_time_s = 0;
+    Clear_string1;
     led1_open_strup;
     led1_power_strup;
     Light1_ON;
@@ -869,6 +977,7 @@ void channel1_multistage()
               {
                   channel1.now_time_s = 0;
                   cycle1 = 0;
+
                   set_ch1_output(channel1.multistage_power[cycle1]);//设置PWM占空比
                    ch1_output_on();//使能PWM输出
                    UpdataLcdDataU8(monitor_page_power_c1,2,channel1.multistage_power[cycle1]);//更新功率
@@ -887,6 +996,7 @@ void channel1_multistage()
               if(Temp1>=channel1.alarm_temperature)//温度报警
               {
                   Alarm1_ON;
+                  NC1_ON;
                   alarm_status=1;
                   channel1.status = 0;
                   led1_temperature_alarm_strup;
@@ -896,6 +1006,7 @@ void channel1_multistage()
                 if(Read_CheckLed1==1)//报警
                 {
                   Alarm1_ON;
+                  NC1_ON;
                   alarm_status=1;
                   channel1.status = 0;
                   led1_checkled_alarm_strup;
@@ -903,6 +1014,7 @@ void channel1_multistage()
                 if(current1<(set_pwm1/1000.0*1500-100))//比较电流
                 {
                     Alarm1_ON;
+
                     alarm_status=1;
                     channel1.status = 0;
                     led1_current_alarm_strup;
@@ -938,6 +1050,7 @@ void channel1_multistage()
               {
 
               }else {
+                  Clear_string1;
                   led1_close_strup;
               }
               //EN1_OFF;
@@ -956,6 +1069,7 @@ void channel1_multistage()
       rt_thread_mdelay(1000);
     }
 }
+
 void channel2_multistage()
 {
     rt_uint32_t all_time1;
@@ -963,6 +1077,7 @@ void channel2_multistage()
     rt_uint8_t alarm_status=0;
     rt_uint8_t cycle1,large_cycle1;
     Alarm2_OFF;
+    NC1_OFF;
     Light2_OFF;
     last_state1 = Read_LedOn2;
     Complete2_OFF;
@@ -1004,6 +1119,7 @@ void channel2_multistage()
               if(Temp2>=channel2.alarm_temperature)//温度报警
               {
                   Alarm2_ON;
+                  NC1_ON;
                   alarm_status=1;
                   channel2.status = 0;
                   led2_temperature_alarm_strup;
@@ -1013,6 +1129,7 @@ void channel2_multistage()
                 if(Read_CheckLed2==1)//报警
                 {
                   Alarm2_ON;
+                  NC1_ON;
                   alarm_status=1;
                   channel2.status = 0;
                   led2_checkled_alarm_strup;
@@ -1020,6 +1137,7 @@ void channel2_multistage()
                 if(current2<(set_pwm2/1000.0*1500-100))//比较电流
                 {
                     Alarm2_ON;
+                    NC1_ON;
                     alarm_status=1;
                     channel2.status = 0;
                     led2_current_alarm_strup;
@@ -1080,6 +1198,7 @@ void channel3_multistage()
     rt_uint8_t alarm_status=0;
     rt_uint8_t cycle1,large_cycle1;
     Alarm3_OFF;
+    NC1_OFF;
     Light3_OFF;
     last_state1 = Read_LedOn3;
     Complete3_OFF;
@@ -1121,6 +1240,7 @@ void channel3_multistage()
               if(Temp3>=channel3.alarm_temperature)//温度报警
               {
                   Alarm3_ON;
+                  NC1_ON;
                   alarm_status=1;
                   channel3.status = 0;
                   led3_temperature_alarm_strup;
@@ -1130,6 +1250,7 @@ void channel3_multistage()
                 if(Read_CheckLed3==1)//报警
                 {
                   Alarm3_ON;
+                  NC1_ON;
                   alarm_status=1;
                   channel3.status = 0;
                   led3_checkled_alarm_strup;
@@ -1137,6 +1258,7 @@ void channel3_multistage()
                 if(current3<(set_pwm3/1000.0*1500-100))//比较电流
                 {
                     Alarm3_ON;
+                    NC1_ON;
                     alarm_status=1;
                     channel3.status = 0;
                     led3_current_alarm_strup;
@@ -1190,6 +1312,7 @@ void channel3_multistage()
       rt_thread_mdelay(1000);
     }
 }
+
 void channel4_multistage()
 {
     rt_uint32_t all_time1;
@@ -1197,6 +1320,7 @@ void channel4_multistage()
     rt_uint8_t alarm_status=0;
     rt_uint8_t cycle1,large_cycle1;
     Alarm4_OFF;
+    NC1_OFF;
     Light4_OFF;
     last_state1 = Read_LedOn4;
     Complete4_OFF;
@@ -1238,6 +1362,7 @@ void channel4_multistage()
               if(Temp4>=channel4.alarm_temperature)//温度报警
               {
                   Alarm4_ON;
+                  NC1_ON;
                   alarm_status=1;
                   channel4.status = 0;
                   led4_temperature_alarm_strup;
@@ -1247,6 +1372,7 @@ void channel4_multistage()
                 if(Read_CheckLed4==1)//报警
                 {
                   Alarm4_ON;
+                  NC1_ON;
                   alarm_status=1;
                   channel4.status = 0;
                   led4_checkled_alarm_strup;
@@ -1254,6 +1380,7 @@ void channel4_multistage()
                 if(current4<(set_pwm4/1000.0*1500-100))//比较电流
                 {
                     Alarm4_ON;
+                    NC1_ON;
                     alarm_status=1;
                     channel4.status = 0;
                     led4_current_alarm_strup;
@@ -1307,6 +1434,7 @@ void channel4_multistage()
       rt_thread_mdelay(1000);
     }
 }
+
 void sync_mode()
 {
     if(channel_sync_mode==1)
@@ -1317,6 +1445,7 @@ void sync_mode()
         channel4.status = 1;
     }
 }
+
 void sync_mode_off()
 {
     if(channel_sync_mode==1)
@@ -1327,6 +1456,7 @@ void sync_mode_off()
         channel4.status = 0;
     }
 }
+
 void updata_shine_page()
 {
     UpdataLcdDataU8(0x5020,2,channel1.power);//更新功率
@@ -1391,12 +1521,14 @@ void updata_shine_page()
         }
     }
 }
+
 void shine_channel1(void *parameter)//manual mode
 {
     rt_uint8_t old_status,last_state1;
     old_status = channel1.status;
     last_state1 = Read_LedOn1;
     //更新监控界面文字
+    Clear_string1;
     led1_close_strup;
     UpdataLcdDataU8(0x5020,2,channel1.power);//更新功率
     UpdataLcdDataU8(0x1054,2,0);//更新照射时间
@@ -1438,14 +1570,17 @@ void shine_channel1(void *parameter)//manual mode
                 FanON1();
                 if(channel1.light_mode==0)//手动
                 {
+                    c1_set = channel1.set_current;
                     channel1_manual();
                     //UpdataLcdDataU8(monitor_page_current_c1,0,0);
                 }else {//自动
                     if(channel1.control_mode==0)//固定
                     {
+                        c1_set = channel1.set_current;
                         channel1_auto();
                        // UpdataLcdDataU8(monitor_page_current_c1,0,0);
                     }else {//阶梯
+                        c1_set = channel1.set_current;
                         channel1_multistage();
                         //UpdataLcdDataU8(monitor_page_current_c1,0,0);
                     }
@@ -1460,6 +1595,7 @@ void shine_channel1(void *parameter)//manual mode
         rt_thread_mdelay(100);
     }
 }
+
 void shine_channel2(void *parameter)//manual mode
 {
     rt_uint8_t old_status,last_state1;
@@ -1507,11 +1643,13 @@ void shine_channel2(void *parameter)//manual mode
                 FanON2();
                 if(channel2.light_mode==0)//手动
                 {
+                    c2_set = channel2.set_current;
                     channel2_manual();
                     //UpdataLcdDataU8(monitor_page_current_c2,0,0);
                 }else {//自动
                     if(channel2.control_mode==0)//固定
                     {
+                        c2_set = channel2.set_current;
                         channel2_auto();
                         //UpdataLcdDataU8(monitor_page_current_c2,0,0);
                     }else {//阶梯
@@ -1529,6 +1667,7 @@ void shine_channel2(void *parameter)//manual mode
         rt_thread_mdelay(100);
     }
 }
+
 void shine_channel3(void *parameter)//manual mode
 {
     rt_uint8_t old_status,last_state1;
@@ -1577,11 +1716,13 @@ void shine_channel3(void *parameter)//manual mode
                 FanON3();
                 if(channel3.light_mode==0)//手动
                 {
+                    c3_set = channel3.set_current;
                     channel3_manual();
                     //UpdataLcdDataU8(monitor_page_current_c3,0,0);
                 }else {//自动
                     if(channel3.control_mode==0)//固定
                     {
+                        c3_set = channel3.set_current;
                         channel3_auto();
                         //UpdataLcdDataU8(monitor_page_current_c3,0,0);
                     }else {//阶梯
@@ -1598,6 +1739,7 @@ void shine_channel3(void *parameter)//manual mode
         rt_thread_mdelay(100);
     }
 }
+
 void shine_channel4(void *parameter)//manual mode
 {
     rt_uint8_t old_status,last_state1;
@@ -1646,11 +1788,13 @@ void shine_channel4(void *parameter)//manual mode
                 FanON4();
                 if(channel4.light_mode==0)//手动
                 {
+                    c4_set = channel4.set_current;
                     channel4_manual();
                     //UpdataLcdDataU8(monitor_page_current_c4,0,0);
                 }else {//自动
                     if(channel4.control_mode==0)//固定
                     {
+                        c4_set = channel4.set_current;
                         channel4_auto();
                         //UpdataLcdDataU8(monitor_page_current_c4,0,0);
                     }else {//阶梯
@@ -1667,8 +1811,13 @@ void shine_channel4(void *parameter)//manual mode
         rt_thread_mdelay(100);
     }
 }
+
 void shine_init()//照射 初始化
 {
+    l_off1 = 0;
+    l_off2 = 0;
+    l_off3 = 0;
+    l_off4 = 0;
     c1 = rt_thread_create("shine1", shine_channel1, RT_NULL, 1024, 20, 10);
     rt_thread_startup(c1);//启动线程
     c2 = rt_thread_create("shine2", shine_channel2, RT_NULL, 1024, 20, 10);

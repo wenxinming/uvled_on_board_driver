@@ -98,6 +98,22 @@ void set_ch1_output(rt_uint8_t num)
     }
     __HAL_TIM_SET_COMPARE(&g_timx_pwm_chy_handle, OutputCH1, set_pwm1);
 }
+void set_ch1_output2(rt_uint16_t num)
+{
+    __HAL_TIM_SET_COMPARE(&g_timx_pwm_chy_handle, OutputCH1, num);
+}
+void set_ch2_output2(rt_uint16_t num)
+{
+    __HAL_TIM_SET_COMPARE(&g_timx_pwm_chy_handle, OutputCH2, num);
+}
+void set_ch3_output2(rt_uint16_t num)
+{
+    __HAL_TIM_SET_COMPARE(&g_timx_pwm_chy_handle, OutputCH3, num);
+}
+void set_ch4_output2(rt_uint16_t num)
+{
+    __HAL_TIM_SET_COMPARE(&g_timx_pwm_chy_handle, OutputCH4, num);
+}
 void set_ch2_output(rt_uint8_t num)
 {
     float temp;

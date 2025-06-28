@@ -10,14 +10,18 @@
 #ifndef DRIVERS_LCD_STRING_H_
 #define DRIVERS_LCD_STRING_H_
 
-#define led1_open_strup UpdataLcdString(0x1010, 17, "开启照射")
-#define led1_close_strup UpdataLcdString(0x1010, 17, "关闭照射")
-#define led2_open_strup UpdataLcdString(0x1020, 17, "开启照射")
-#define led2_close_strup UpdataLcdString(0x1020, 17, "关闭照射")
-#define led3_open_strup UpdataLcdString(0x1030, 17, "开启照射")
-#define led3_close_strup UpdataLcdString(0x1030, 17, "关闭照射")
-#define led4_open_strup UpdataLcdString(0x1040, 17, "开启照射")
-#define led4_close_strup UpdataLcdString(0x1040, 17, "关闭照射")
+#define Clear_string1 UpdataLcdString(0x1010, 17,  "              ")
+#define Clear_string2 UpdataLcdString(0x1020, 17,  "              ")
+#define Clear_string3 UpdataLcdString(0x1030, 17,  "              ")
+#define Clear_string4 UpdataLcdString(0x1040, 17,  "              ")
+#define led1_open_strup UpdataLcdString(0x1010, 17,  "  Light on     ")
+#define led1_close_strup UpdataLcdString(0x1010, 17, "  Light off    ")
+#define led2_open_strup UpdataLcdString(0x1020, 17,  "  Light on     ")
+#define led2_close_strup UpdataLcdString(0x1020, 17, "  Light off    ")
+#define led3_open_strup UpdataLcdString(0x1030, 17,  "  Light on     ")
+#define led3_close_strup UpdataLcdString(0x1030, 17, "  Light off    ")
+#define led4_open_strup UpdataLcdString(0x1040, 17,  "  Light on     ")
+#define led4_close_strup UpdataLcdString(0x1040, 17, "  Light off    ")
 
 #define led1_power_strup UpdataLcdDataU8(0x5020,2,channel1.power)
 #define led2_power_strup UpdataLcdDataU8(0x105C,2,channel2.power)
@@ -29,20 +33,20 @@
 #define led3_now_time_strup UpdataLcdDataU8(0x106C,8,channel3.now_time_s)//通道1时间
 #define led4_now_time_strup UpdataLcdDataU8(0x1078,8,channel4.now_time_s)//通道1时间
 
-#define led1_current_alarm_strup UpdataLcdString(0x1010, 17, "电流异常")
-#define led2_current_alarm_strup UpdataLcdString(0x1020, 17, "电流异常")
-#define led3_current_alarm_strup UpdataLcdString(0x1030, 17, "电流异常")
-#define led4_current_alarm_strup UpdataLcdString(0x1040, 17, "电流异常")
+#define led1_current_alarm_strup UpdataLcdString(0x1010, 17, "Current err")
+#define led2_current_alarm_strup UpdataLcdString(0x1020, 17, "Current err")
+#define led3_current_alarm_strup UpdataLcdString(0x1030, 17, "Current err")
+#define led4_current_alarm_strup UpdataLcdString(0x1040, 17, "Current err")
 
-#define led1_checkled_alarm_strup UpdataLcdString(0x1010, 17, "接入异常")
-#define led2_checkled_alarm_strup UpdataLcdString(0x1020, 17, "接入异常")
-#define led3_checkled_alarm_strup UpdataLcdString(0x1030, 17, "接入异常")
-#define led4_checkled_alarm_strup UpdataLcdString(0x1040, 17, "接入异常")
+#define led1_checkled_alarm_strup UpdataLcdString(0x1010, 17, "Input err  ")
+#define led2_checkled_alarm_strup UpdataLcdString(0x1020, 17, "Input err  ")
+#define led3_checkled_alarm_strup UpdataLcdString(0x1030, 17, "Input err  ")
+#define led4_checkled_alarm_strup UpdataLcdString(0x1040, 17, "Input err  ")
 
-#define led1_temperature_alarm_strup UpdataLcdString(0x1010, 17, "温度报警")
-#define led2_temperature_alarm_strup UpdataLcdString(0x1020, 17, "温度报警")
-#define led3_temperature_alarm_strup UpdataLcdString(0x1030, 17, "温度报警")
-#define led4_temperature_alarm_strup UpdataLcdString(0x1040, 17, "温度报警")
+#define led1_temperature_alarm_strup UpdataLcdString(0x1010, 17, "Temp err  ")
+#define led2_temperature_alarm_strup UpdataLcdString(0x1020, 17, "Temp err  ")
+#define led3_temperature_alarm_strup UpdataLcdString(0x1030, 17, "Temp err  ")
+#define led4_temperature_alarm_strup UpdataLcdString(0x1040, 17, "Temp err  ")
 
 #define led1_button_off_strup updatarunbutton(0,0x1080,7)//开灯按钮off
 #define led2_button_off_strup updatarunbutton(0,0x1082,7)
